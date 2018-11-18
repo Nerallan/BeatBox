@@ -28,7 +28,12 @@ public class BeatBoxFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // The normal savedInstanceState mechanism works with persisted data,
+        // but the BeatBox and SoundPool classes is not persisted
+        // The BeatBox instance should remain available while creating and destroying activity
+        // the retainInstance property allows to save a BeatBox instance between configuration changes
+        // Such fragment is not destroyed with the activity, but is preserved and transmitted to the new activity
+        setRetainInstance(true);
         mBeatBox = new BeatBox(getActivity());
     }
 
@@ -39,19 +44,39 @@ public class BeatBoxFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_beat_box, container, false);
         RecyclerView recyclerView = (RecyclerView)view.findViewById(R.id.fragment_beat_box_recycler_view);
         // make grid with 3 column
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         recyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds()));
         return view;
     }
 
 
-    private class SoundHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mBeatBox.release();
+    }
+
+
+    public static BeatBoxFragment newInstance() {
+        return new BeatBoxFragment();
+    }
+
+
+    private class SoundHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private Button mButton;
         private Sound mSound;
 
-        public SoundHolder(View itemView) {
-            super(itemView);
+//        public SoundHolder(View itemView) {
+//            super(itemView);
+//            mButton = (Button) itemView.findViewById(R.id.list_item_sound_button);
+//            mButton.setOnClickListener(this);
+//        }
+
+        public SoundHolder(LayoutInflater pInflater, ViewGroup container){
+            super(pInflater.inflate(R.layout.list_item_sound, container, false));
+
             mButton = (Button) itemView.findViewById(R.id.list_item_sound_button);
+            mButton.setOnClickListener(this);
         }
 
         // connect sound instance with Sound object
@@ -59,11 +84,11 @@ public class BeatBoxFragment extends Fragment{
             mSound = pSound;
             mButton.setText(mSound.getName());
         }
-    }
 
-
-    public static BeatBoxFragment newInstance() {
-        return new BeatBoxFragment();
+        @Override
+        public void onClick(View v) {
+            mBeatBox.play(mSound);
+        }
     }
 
 
@@ -77,8 +102,8 @@ public class BeatBoxFragment extends Fragment{
         @Override
         public SoundHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            View view = layoutInflater.inflate(R.layout.list_item_sound, parent, false);
-            return new SoundHolder(view);
+//            View view = layoutInflater.inflate(R.layout.list_item_sound, parent, false);
+            return new SoundHolder(layoutInflater, parent);
         }
 
         @Override

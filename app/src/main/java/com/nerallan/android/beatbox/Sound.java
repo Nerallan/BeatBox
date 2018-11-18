@@ -8,6 +8,9 @@ package com.nerallan.android.beatbox;
 public class Sound {
     private String mAssetPath;
     private String mName;
+    // each loaded sound is assigned its own integer identifier.
+    private Integer mSoundId;
+
 
     public Sound(String pAssetPath){
         mAssetPath = pAssetPath;
@@ -23,6 +26,14 @@ public class Sound {
 
     public String getName() {
         return mName;
+    }
+
+    public Integer getSoundId() {
+        return mSoundId;
+    }
+
+    public void setSoundId(Integer pSoundId) {
+        mSoundId = pSoundId;
     }
 }
 

@@ -5,6 +5,6 @@
     android:id="@+id/list_item_sound_button"
     android:layout_width="match_parent"
     android:layout_height="120dp"
-    android:text="Sound name">
+    tools:text="Sound name">
 
 </Button>
